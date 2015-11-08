@@ -38,11 +38,11 @@ public class Main implements Constants{
 		start.startButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if(e.getSource() == start.startButton){
-					 if(playerNames.size() < 3){
+					 /*if(playerNames.size() < 3){
 						 gameState = WAITING_FOR_PLAYERS;
 						 Start.playerStatus.setText("Waiting for players"); 
 					 }
-					 else{
+					 else{*/
 						 CardLayout cl = (CardLayout)(panel.getLayout());
 						 cl.show(panel, "");
 					     thisPlayer = start.enterPlayerName.getText();
@@ -51,7 +51,7 @@ public class Main implements Constants{
 					     mainGamePanel.add(client);
 					     //GameServer gs = new GameServer();
 					     //ChatServer cs = new ChatServer();
-					 }
+					 //}
 				}	
 			}
 		});
