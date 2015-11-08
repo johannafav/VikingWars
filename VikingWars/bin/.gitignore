@@ -10,17 +10,10 @@
 /ClientGUI.class
 /Game$1.class
 /Game.class
-/GameServer.class
 /Main$1.class
 /Main.class
 /Menu$1.class
 /Menu.class
-/MulticastClient.class
-/MulticastServer.class
-/MulticastServerThread.class
-/QuoteClient.class
-/QuoteServer.class
-/QuoteServerThread.class
 /Server$ClientThread.class
 /Server.class
 /ServerGUI$ServerRunning.class
@@ -34,3 +27,8 @@
 /WallBreaker.class
 /Wizard.class
 /sample.txt
+/ServerStart.class
+/GameServer.class
+/Constants.class
+/GameState.class
+/NetPlayer.class

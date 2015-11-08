@@ -19,10 +19,10 @@ public class ChatUI extends JPanel implements ActionListener{
 	static JTextArea messagesPanel = new JTextArea();
 	JLabel chatLabel = new JLabel("Global Chat");
 	Client client;
-	String username = "Johan";
+	//String username = "Johan";
 	String server = "localhost";
 	
-	public ChatUI(String host, int port){
+	public ChatUI(String host, int port, String username){
 		this.setPreferredSize(new Dimension(250, 700));
 		this.setOpaque(false);
 		chatBox.setPreferredSize(new Dimension(240, 45));

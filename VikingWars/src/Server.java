@@ -155,7 +155,7 @@ public class Server {
 	 * > java Server portNumber
 	 * If the port number is not specified 1500 is used
 	 */ 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		// start server on port 1500 unless a PortNumber is specified 
 		int portNumber = 1500;
 		switch(args.length) {
@@ -178,7 +178,7 @@ public class Server {
 		// create a server object and start it
 		Server server = new Server(portNumber);
 		server.start();
-	}
+	}*/
 
 	/** One instance of this thread will run for each client */
 	class ClientThread extends Thread {
@@ -202,24 +202,24 @@ public class Server {
 			this.socket = socket;
 			/* Creating both Data Stream */
 			System.out.println("Thread trying to create Object Input/Output Streams");
-			try
-			{
-				// create output first
-				sOutput = new ObjectOutputStream(socket.getOutputStream());
-				sInput  = new ObjectInputStream(socket.getInputStream());
-				// read the username
-				username = (String) sInput.readObject();
-				display(username + " just connected.");
-			}
-			catch (IOException e) {
-				display("Exception creating new Input/output Streams: " + e);
-				return;
-			}
-			// have to catch ClassNotFoundException
-			// but I read a String, I am sure it will work
-			catch (ClassNotFoundException e) {
-			}
-            date = new Date().toString() + "\n";
+				try
+				{
+					// create output first
+					sOutput = new ObjectOutputStream(socket.getOutputStream());
+					sInput  = new ObjectInputStream(socket.getInputStream());
+					// read the username
+					username = (String) sInput.readObject();
+					display(username + " just connected.");
+				}
+				catch (IOException e) {
+					display("Exception creating new Input/output Streams: " + e);
+					return;
+				}
+				// have to catch ClassNotFoundException
+				// but I read a String, I am sure it will work
+				catch (ClassNotFoundException e) {
+				}
+	            date = new Date().toString() + "\n";
 		}
 
 		// what will run forever

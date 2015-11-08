@@ -13,13 +13,14 @@ public class AttackTimer implements ActionListener{
 		this.attacker = u;
 		this.enemy = e;
 		this.timer = new Timer(1000, this);
-		this.timer.start();
+		timer.start();
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		if(attacker.getLife() == 0 || enemy.getLife() == 0){
+		if(attacker.getLife() <= 0 || enemy.getLife() <= 0){
 			timer.stop();
+			//attacker.moveTimer.timer.start();
 		}
 		else{
 			attacker.attackEnemy(attacker, enemy);

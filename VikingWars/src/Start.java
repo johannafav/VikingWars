@@ -18,16 +18,17 @@ import javax.swing.JTextField;
 public class Start extends JPanel{
 	
 	JButton startButton = new JButton("Start game");
+	Container container = new Container();
+	JPanel centerPanel = new JPanel();
+	JTextField enterPlayerName = new JTextField();
+	JTextField enterHostName = new JTextField();
+	JTextField enterPortNum = new JTextField();
+	JLabel playerName = new JLabel("Enter player name: ");
+	JLabel hostName = new JLabel("Host: ");
+	JLabel portNum = new JLabel("Port: ");
+	static JLabel playerStatus = new JLabel("");
 	
 	public Start(){
-		Container container = new Container();
-		JPanel centerPanel = new JPanel();
-		JTextField enterPlayerName = new JTextField();
-		JTextField enterHostName = new JTextField();
-		JTextField enterPortNum = new JTextField();
-		JLabel playerName = new JLabel("Enter player name: ");
-		JLabel hostName = new JLabel("Host: ");
-		JLabel portNum = new JLabel("Port: ");
 		//container.add(this);
 		//this.setBackground(new Color(245,245,245));
 		//this.setLayout(new BorderLayout());
@@ -56,7 +57,7 @@ public class Start extends JPanel{
 				
 			}
 		});
-		centerPanel.add(hostName);
+		/*centerPanel.add(hostName);
 		centerPanel.add(enterHostName);
 		centerPanel.add(portNum);
 		centerPanel.add(enterPortNum);
@@ -65,7 +66,7 @@ public class Start extends JPanel{
 		centerPanel.add(startButton);
 		centerPanel.setPreferredSize(new Dimension(100,100));
 		centerPanel.setBackground(new Color(230, 230, 250));
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));*/
 		
 		this.add(hostName);
 		this.add(enterHostName);
@@ -74,6 +75,7 @@ public class Start extends JPanel{
 		this.add(playerName);
 		this.add(enterPlayerName);
 		this.add(startButton);
+		this.add(playerStatus);
 		//this.setPreferredSize(new Dimension(100,100));
 		this.setBackground(new Color(230, 230, 250));
 		//this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

@@ -15,14 +15,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-public class Main {
+public class Main implements Constants{
 	
 	protected static ArrayList<String> playerNames = new ArrayList<String>();
-	protected static String thisPlayer;
+	protected static String thisPlayer;// = "Johan";
 	
-	public final static int WAITING_FOR_PLAYERS = 0;
-	public final static int IN_PROGRESS = 0;
-	public final static int GAME_OVER = 0;
+	//public final static int WAITING_FOR_PLAYERS = 0;
+	//public final static int IN_PROGRESS = 0;
+	//public final static int GAME_OVER = 0;
 	
 	public static int gameState = WAITING_FOR_PLAYERS;
 	
@@ -30,26 +30,28 @@ public class Main {
 		JFrame frame = new JFrame("Viking Wars");
 		JPanel panel = new JPanel();
 		JPanel mainGamePanel = new JPanel();
-		//JPanel start = new JPanel();
-		JTextField enterPlayerName = new JTextField();
-		JLabel playerName = new JLabel("Enter player name: ");
 		Start start = new Start();
-		//thisPlayer = enterPlayerName.getText();
-		//playerNames.add(thisPlayer);
 		panel.setBackground(new Color(245,245,245));
 		panel.setLayout(new CardLayout());
 		panel.add(start);
 		panel.add(mainGamePanel);
-		/*start.setBackground(new Color(245,245,245));
-		JButton startButton = new JButton("Start game");
-		startButton.setEnabled(false);*/
 		start.startButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if(e.getSource() == start.startButton){
-					 CardLayout cl = (CardLayout)(panel.getLayout());
-				     cl.show(panel, "");
-				     //GameServer gs = new GameServer();
-				     //ChatServer cs = new ChatServer();
+					 if(playerNames.size() < 3){
+						 gameState = WAITING_FOR_PLAYERS;
+						 Start.playerStatus.setText("Waiting for players"); 
+					 }
+					 else{
+						 CardLayout cl = (CardLayout)(panel.getLayout());
+						 cl.show(panel, "");
+					     thisPlayer = start.enterPlayerName.getText();
+					     playerNames.add(thisPlayer);
+					     ChatUI client = new ChatUI("localhost", 1500, thisPlayer);
+					     mainGamePanel.add(client);
+					     //GameServer gs = new GameServer();
+					     //ChatServer cs = new ChatServer();
+					 }
 				}	
 			}
 		});
@@ -118,13 +120,11 @@ public class Main {
 		if(!client.start())
 			return;
 		*/
-		int portNumber = 1500;
+		/*int portNumber = 1500;
 		String serverAddress = "localhost";
-		String userName = "Anonymous";
-		ChatUI client = new ChatUI(serverAddress, 1500);
+		String userName = "Anonymous";*/
 		mainGamePanel.add(menu);
 		mainGamePanel.add(game);
-		mainGamePanel.add(client);
 		//((FlowLayout)mainGamePanel.getLayout()).setVgap(0);
 		//((FlowLayout)mainGamePanel.getLayout()).setHgap(0);
 		mainGamePanel.setBorder(new EmptyBorder(5,5,5,5));

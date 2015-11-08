@@ -12,7 +12,7 @@ public class UnitMoveTimer implements ActionListener{
 		public UnitMoveTimer(Unit u, Unit e){
 			this.attacker = u;
 			this.enemy = e;
-			this.timer = new Timer(1000, this);
+			this.timer = new Timer(500, this);
 			this.timer.start();
 		}
 		
@@ -21,6 +21,7 @@ public class UnitMoveTimer implements ActionListener{
 			int target[] = {enemy.getX(), enemy.getY()};
 			if(attacker.readyToAttack){
 				timer.stop();
+				attacker.attackTimer = new AttackTimer(attacker, enemy);
 			}
 			else{
 				attacker.move(attacker, enemy);

@@ -5,6 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 
-public class Game extends JPanel{
+public class Game extends JPanel implements ActionListener, Constants{
 	
 	/*
 	 * Codes for Units:
@@ -33,19 +38,23 @@ public class Game extends JPanel{
 	 */
 
 	static JButton square[][] = new JButton[25][25];
-	int field[][] = new int[25][25];
+	static int field[][] = new int[25][25];
 	
-	ArrayList<Barbarian> barbariansDeployed = new ArrayList<Barbarian>();
-	ArrayList<Archer> archersDeployed = new ArrayList<Archer>();
-	ArrayList<Wizard> wizardsDeployed = new ArrayList<Wizard>();
-	ArrayList<WallBreaker> wallBreakersDeployed = new ArrayList<WallBreaker>();
-	ArrayList<Cannon> cannonsDeployed = new ArrayList<Cannon>();
-	ArrayList<Wall> wallsDeployed = new ArrayList<Wall>();
-	ArrayList<ArcherTower> archerTowersDeployed = new ArrayList<ArcherTower>();
+	static ArrayList<Barbarian> barbariansDeployed = new ArrayList<Barbarian>();
+	static ArrayList<Archer> archersDeployed = new ArrayList<Archer>();
+	static ArrayList<Wizard> wizardsDeployed = new ArrayList<Wizard>();
+	static ArrayList<WallBreaker> wallBreakersDeployed = new ArrayList<WallBreaker>();
+	static ArrayList<Cannon> cannonsDeployed = new ArrayList<Cannon>();
+	static ArrayList<Wall> wallsDeployed = new ArrayList<Wall>();
+	static ArrayList<ArcherTower> archerTowersDeployed = new ArrayList<ArcherTower>();
 	
 	Townhall t;
 	
-	public Game(){
+	String host = "localhost";
+	int port = 6400;
+	protected DatagramSocket socket;
+	
+	public Game(/*String host, int port*/){
 		Main.gameState = Main.IN_PROGRESS;
 		this.setLayout(new GridLayout(25, 25, 1, 1));
 		this.setPreferredSize(new Dimension(700, 700));
@@ -53,7 +62,8 @@ public class Game extends JPanel{
 		createGameBoard();
 		readFile();
 		this.setBorder(new EmptyBorder(1,1,1,1));
-		//move(5, 3);
+		this.host = host;
+		this.port = port;
 	}
 	
 	//creates the 25x25 grid of panels that serve as the playing field
@@ -93,13 +103,14 @@ public class Game extends JPanel{
 									Barbarian b = new Barbarian();
 									b.setX(i);
 									b.setY(j);
+									deploy(b);
 									btn.setBackground(b.getColor());
 									barbariansDeployed.add(b);
 									Menu.barbariansLeft--;
 									Menu.barbarianPool.setText("Barbarians Remaining: " + Menu.barbariansLeft);
 									b.setEnemy(getClosestEnemy(b));
 									b.moveTimer = new UnitMoveTimer(b, b.getEnemy());
-									b.attackTimer = new AttackTimer(b, b.getEnemy());
+									//b.attackTimer = new AttackTimer(b, b.getEnemy());
 								}
 								else Menu.unit[0].setEnabled(false);
 								break;
@@ -107,6 +118,7 @@ public class Game extends JPanel{
 									Archer a = new Archer();
 									a.setX(i);
 									a.setY(j);
+									deploy(a);
 									btn.setBackground(a.getColor());
 									archersDeployed.add(a);
 									Menu.archersLeft--;
@@ -121,6 +133,7 @@ public class Game extends JPanel{
 									Wizard w = new Wizard();
 									w.setX(i);
 									w.setY(j);
+									deploy(w);
 									btn.setBackground(w.getColor());
 									wizardsDeployed.add(w);
 									Menu.wizardsLeft--;
@@ -134,6 +147,7 @@ public class Game extends JPanel{
 									WallBreaker wb = new WallBreaker();
 									wb.setX(i);
 									wb.setY(j);
+									deploy(wb);
 									btn.setBackground(wb.getColor());
 									wallBreakersDeployed.add(wb);
 									Menu.wallBreakersLeft--;
@@ -226,14 +240,16 @@ public class Game extends JPanel{
 									t.setY(i);
 									hasTownhall = true;
 								}
-								square[lineNum][i].setBackground(Color.DARK_GRAY);
+								square[lineNum][i].setBackground(new Color(0,128,128));
 								square[lineNum][i].setEnabled(false);
+								field[lineNum][i] = 1;
 								break;
 						case 2: Cannon c = new Cannon();
 								c.setX(lineNum);
 								c.setY(i);
 								square[lineNum][i].setBackground(c.getColor());
 								square[lineNum][i].setEnabled(false);
+								field[lineNum][i] = 1;
 								cannonsDeployed.add(c);
 								break;
 						case 3: Wall w = new Wall();
@@ -241,6 +257,7 @@ public class Game extends JPanel{
 								w.setY(i);
 								square[lineNum][i].setBackground(w.getColor());
 								square[lineNum][i].setEnabled(false);
+								field[lineNum][i] = 1;
 								wallsDeployed.add(w);
 								break;
 						case 4: ArcherTower at = new ArcherTower();
@@ -248,6 +265,7 @@ public class Game extends JPanel{
 								at.setY(i);
 								square[lineNum][i].setBackground(at.getColor());
 								square[lineNum][i].setEnabled(false);
+								field[lineNum][i] = 1;
 								archerTowersDeployed.add(at);
 								break;
 					}
@@ -257,6 +275,59 @@ public class Game extends JPanel{
 		} catch (IOException x) {
 			System.err.format("IOException: %s%n", x);
 		}
+	}
+	
+	public static void destroyUnit(Unit u){
+		switch(u.getType()){
+			case 1: break;
+			case 2: cannonsDeployed.remove(u);
+					break;
+			case 3: wallsDeployed.remove(u);
+					break;
+			case 4: archerTowersDeployed.remove(u);
+					break;
+		}
+	}
+	
+	public static void deploy(Unit u){
+		field[u.getX()][u.getY()] = 1;
+	}
+	
+	public static void remove(int x, int y){
+		field[x][y] = 0;
+	}
+	
+	public static boolean checkIfOccupied(int x, int y){
+		if(field[x][y] == 1) return true;
+		else return false;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		/*for(Barbarian b: barbariansDeployed){
+			if(!b.readyToAttack){
+				b.setEnemy(getClosestEnemy(b));
+				b.moveTimer.timer.start();
+			}
+		}
+		for(Archer a: archersDeployed){
+			if(!a.readyToAttack){
+				a.setEnemy(getClosestEnemy(a));
+				a.moveTimer.timer.start();
+			}
+		}
+		for(Wizard w: wizardsDeployed){
+			if(!w.readyToAttack){
+				w.setEnemy(getClosestEnemy(w));
+				w.moveTimer.timer.start();
+			}
+		}
+		for(WallBreaker wb: wallBreakersDeployed){
+			if(!wb.readyToAttack){
+				wb.setEnemy(getClosestEnemy(wb));
+				wb.moveTimer.timer.start();
+			}
+		}*/
 	}
 	
 }

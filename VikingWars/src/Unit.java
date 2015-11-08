@@ -23,51 +23,76 @@ public class Unit {
 		int prevPositionX = u.getX();
 		int prevPositionY = u.getY();
 		boolean left = false, right = false, top = false, down= false, inPositionX = false, inPositionY = false;
-		if(prevPositionX < enemyPositionX) left = true;
-		else right = true;
-		if(prevPositionY < enemyPositionY) top = true;
-		else down = true;
-		if((left && prevPositionX == enemyPositionX-1) || (right && prevPositionX == enemyPositionX+1)){
-			if((top && prevPositionY == enemyPositionY-1) || (down && prevPositionY == enemyPositionY+1)) u.readyToAttack = true;
+		if(prevPositionY < enemyPositionY-1 && !Game.checkIfOccupied(prevPositionX, prevPositionY+1)){
+			u.setY(prevPositionY+1);
 		}
-		if(prevPositionX == enemyPositionX){
-			if(top && prevPositionY < enemyPositionY-1) u.setY(prevPositionY+1);
-			if(down && prevPositionY > enemyPositionY+1) u.setY(prevPositionY-1);
+		else if(prevPositionY > enemyPositionY+1 && !Game.checkIfOccupied(prevPositionX, prevPositionY-1)){
+			u.setY(prevPositionY-1);
 		}
-		else if(prevPositionY == enemyPositionY){
-			if(left && prevPositionX < enemyPositionX-1) u.setX(prevPositionX+1);
-			if(right && prevPositionX > enemyPositionX+1) u.setX(prevPositionX-1);
+		if(prevPositionX < enemyPositionX-1 && !Game.checkIfOccupied(prevPositionX+1, prevPositionY)){
+			u.setX(prevPositionX+1);
 		}
-		else if(left){
-			if(prevPositionX < enemyPositionX-1) u.setX(prevPositionX+1);
+		else if(prevPositionX > enemyPositionX+1 && !Game.checkIfOccupied(prevPositionX-1, prevPositionY)){
+			u.setX(prevPositionX-1);
 		}
-		else if(right){
-			if(prevPositionX > enemyPositionX+1) u.setX(prevPositionX-1);
+		if(prevPositionX == enemyPositionX-1 || prevPositionX == enemyPositionX+1 || prevPositionX == enemyPositionX){
+			if(prevPositionY == enemyPositionY-1 || prevPositionY == enemyPositionY+1 || prevPositionY == enemyPositionY){
+				u.readyToAttack = true;
+				return;
+			}
+			if(prevPositionY < enemyPositionY-1 && !Game.checkIfOccupied(prevPositionX, prevPositionY+1)){
+				u.setY(prevPositionY+1);
+			}
+			if(prevPositionY > enemyPositionY+1 && !Game.checkIfOccupied(prevPositionX, prevPositionY-1)){
+				u.setY(prevPositionY-1);
+			}
 		}
-		if(top){
-			if(prevPositionY < enemyPositionY-1) u.setX(prevPositionY+1);
+		if(prevPositionY == enemyPositionY-1 || prevPositionY == enemyPositionY+1 || prevPositionY == enemyPositionY){
+			if(prevPositionX == enemyPositionX-1 || prevPositionX == enemyPositionX+1 || prevPositionX == enemyPositionX){
+				u.readyToAttack = true;
+				return;
+			}
+			if(prevPositionX < enemyPositionX && !Game.checkIfOccupied(prevPositionX+1, prevPositionY)){
+				u.setX(prevPositionX+1);
+			}
+			if(prevPositionX > enemyPositionX && !Game.checkIfOccupied(prevPositionX-1, prevPositionY)){
+				u.setX(prevPositionX-1);
+			}
 		}
-		else if(down){
-			if(prevPositionY > enemyPositionY+1) u.setX(prevPositionY-1);
-		}
+		Game.remove(u.getX(), u.getY());
+		Game.deploy(u);
 		Game.square[prevPositionX][prevPositionY].setBackground(Color.BLACK);
 		Game.square[u.getX()][u.getY()].setBackground(u.getColor());
 	}
 	
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
 	public void attackEnemy(Unit attacker, Unit enemy){
-		while(attacker.getLife() != 0 || enemy.getLife() != 0){
-			if(attacker.getLife() == 0){
-				Game.square[attacker.getX()][attacker.getY()].setBackground(Color.BLACK);
-				System.out.println(attacker.getClass().toString());
-			}
-			if(enemy.getLife() == 0){
-				Game.square[enemy.getX()][enemy.getY()].setBackground(Color.BLACK);
-				System.out.println(enemy.getClass().toString());
-			}
+		while(attacker.getLife() > 0 && enemy.getLife() > 0){
 			enemy.setLife(enemy.getLife() - attacker.getDamage());
 			System.out.println(attacker.getClass().toString() + " attacked " + enemy.getClass().toString());
 			System.out.println("Enemy life: " + enemy.getLife());
 			System.out.println("Attacker life: " +attacker.getLife());
+		}
+		if(attacker.getLife() <= 0){
+			Game.square[attacker.getX()][attacker.getY()].setBackground(Color.BLACK);
+			Game.remove(enemy.getX(), enemy.getY());
+			enemy.readyToAttack = false;
+			Game.destroyUnit(enemy);
+			System.out.println(attacker.getClass().toString());
+		}
+		if(enemy.getLife() <= 0){
+			Game.square[enemy.getX()][enemy.getY()].setBackground(Color.BLACK);
+			Game.remove(enemy.getX(), enemy.getY());
+			enemy.readyToAttack = false;
+			Game.destroyUnit(enemy);
+			System.out.println(enemy.getClass().toString());
 		}
 	}
 	
