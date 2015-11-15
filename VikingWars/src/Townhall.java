@@ -1,6 +1,6 @@
 import java.awt.Color;
 
-public class Townhall extends Unit{
+public class Townhall extends Defense{
 	
 	public Townhall(){
 		this.type = 1;

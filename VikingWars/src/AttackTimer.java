@@ -5,22 +5,22 @@ import javax.swing.Timer;
 
 public class AttackTimer implements ActionListener{
 	
-	Unit attacker;
-	Unit enemy;
-	Timer timer;
+	Unit attacker = null;
+	Defense enemy = null;
+	Timer timer = new Timer(850, this);
 
-	public AttackTimer(Unit u, Unit e){
+	public AttackTimer(Unit u){
 		this.attacker = u;
-		this.enemy = e;
-		this.timer = new Timer(1000, this);
-		timer.start();
+		this.enemy = u.getEnemy();
+		this.timer.start();
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		if(attacker.getLife() <= 0 || enemy.getLife() <= 0){
+		if(enemy == null){
 			timer.stop();
-			//attacker.moveTimer.timer.start();
+			attacker.setEnemy(Game.getClosestEnemy(attacker));
+			attacker.moveTimer = new UnitMoveTimer(attacker);
 		}
 		else{
 			attacker.attackEnemy(attacker, enemy);

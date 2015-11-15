@@ -13,12 +13,19 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
+
+import com.sun.java.swing.plaf.motif.MotifLookAndFeel;
+import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 
 public class Main implements Constants{
 	
 	protected static ArrayList<String> playerNames = new ArrayList<String>();
 	protected static String thisPlayer;// = "Johan";
+	protected static String host;
 	
 	//public final static int WAITING_FOR_PLAYERS = 0;
 	//public final static int IN_PROGRESS = 0;
@@ -27,6 +34,22 @@ public class Main implements Constants{
 	public static int gameState = WAITING_FOR_PLAYERS;
 	
 	public static void main(String args[]){
+		try {
+			UIManager.setLookAndFeel(
+			        UIManager.getCrossPlatformLookAndFeelClassName());
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		JFrame frame = new JFrame("Viking Wars");
 		JPanel panel = new JPanel();
 		JPanel mainGamePanel = new JPanel();
@@ -46,6 +69,7 @@ public class Main implements Constants{
 						 CardLayout cl = (CardLayout)(panel.getLayout());
 						 cl.show(panel, "");
 					     thisPlayer = start.enterPlayerName.getText();
+					     host = start.enterHostName.getText();
 					     playerNames.add(thisPlayer);
 					     ChatUI client = new ChatUI("localhost", 1500, thisPlayer);
 					     mainGamePanel.add(client);

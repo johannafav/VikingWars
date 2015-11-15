@@ -95,7 +95,7 @@ public class Server {
 		// connect to myself as Client to exit statement 
 		// Socket socket = serverSocket.accept();
 		try {
-			new Socket("localhost", port);
+			new Socket(Main.host, port);
 		}
 		catch(Exception e) {
 			// nothing I can really do

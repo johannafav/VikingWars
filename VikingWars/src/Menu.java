@@ -27,6 +27,7 @@ public class Menu extends JPanel{
 	Container container = new Container();
 	JPanel poolPanel = new JPanel();
 	JPanel unitPanel = new JPanel();
+	JPanel logsPanel = new JPanel();
 	public static JButton unit[] = new JButton[4];
 	public static JLabel barbarianPool = new JLabel("Barbarians Remaining: " + barbariansLeft);
 	public static JLabel archerPool = new JLabel("Archers Remaining: " + archersLeft);

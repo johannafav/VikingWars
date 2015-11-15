@@ -32,3 +32,5 @@
 /Constants.class
 /GameState.class
 /NetPlayer.class
+/Defense.class
+/BuildingAttackTimer.class

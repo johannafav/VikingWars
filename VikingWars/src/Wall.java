@@ -1,6 +1,6 @@
 import java.awt.Color;
 
-public class Wall extends Unit{
+public class Wall extends Defense{
 	
 	public Wall(){
 		this.type = 3;

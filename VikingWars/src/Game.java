@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 
-public class Game extends JPanel implements ActionListener, Constants{
+public class Game extends JPanel implements Constants{
 	
 	/*
 	 * Codes for Units:
@@ -48,11 +48,10 @@ public class Game extends JPanel implements ActionListener, Constants{
 	static ArrayList<Wall> wallsDeployed = new ArrayList<Wall>();
 	static ArrayList<ArcherTower> archerTowersDeployed = new ArrayList<ArcherTower>();
 	
-	Townhall t;
-	
-	String host = "localhost";
+	static Townhall t;
 	int port = 6400;
 	protected DatagramSocket socket;
+	private String host;
 	
 	public Game(/*String host, int port*/){
 		Main.gameState = Main.IN_PROGRESS;
@@ -61,8 +60,9 @@ public class Game extends JPanel implements ActionListener, Constants{
 		this.setBackground(Color.WHITE);
 		createGameBoard();
 		readFile();
+		//createLog();
 		this.setBorder(new EmptyBorder(1,1,1,1));
-		this.host = host;
+		this.host = Main.host;
 		this.port = port;
 	}
 	
@@ -109,8 +109,7 @@ public class Game extends JPanel implements ActionListener, Constants{
 									Menu.barbariansLeft--;
 									Menu.barbarianPool.setText("Barbarians Remaining: " + Menu.barbariansLeft);
 									b.setEnemy(getClosestEnemy(b));
-									b.moveTimer = new UnitMoveTimer(b, b.getEnemy());
-									//b.attackTimer = new AttackTimer(b, b.getEnemy());
+									b.moveTimer = new UnitMoveTimer(b/*, b.getEnemy()*/);
 								}
 								else Menu.unit[0].setEnabled(false);
 								break;
@@ -124,7 +123,7 @@ public class Game extends JPanel implements ActionListener, Constants{
 									Menu.archersLeft--;
 									Menu.archerPool.setText("Archers Remaining: " + Menu.archersLeft);
 									a.setEnemy(getClosestEnemy(a));
-									a.moveTimer = new UnitMoveTimer(a, a.getEnemy());
+									a.moveTimer = new UnitMoveTimer(a);
 									//System.out.println("Coordinates:"+i+" "+j);
 								}
 								else Menu.unit[1].setEnabled(false);
@@ -139,7 +138,7 @@ public class Game extends JPanel implements ActionListener, Constants{
 									Menu.wizardsLeft--;
 									Menu.wizardPool.setText("Wizards Remaining: " + Menu.wizardsLeft);
 									w.setEnemy(getClosestEnemy(w));
-									w.moveTimer = new UnitMoveTimer(w, w.getEnemy());
+									w.moveTimer = new UnitMoveTimer(w);
 								}
 								else Menu.unit[2].setEnabled(false);
 								break;
@@ -153,7 +152,7 @@ public class Game extends JPanel implements ActionListener, Constants{
 									Menu.wallBreakersLeft--;
 									Menu.wallBreakerPool.setText("Wall Breakers Remaining: " + Menu.wallBreakersLeft);
 									wb.setEnemy(getClosestEnemy(wb));
-									wb.moveTimer = new UnitMoveTimer(wb, wb.getEnemy());
+									wb.moveTimer = new UnitMoveTimer(wb);
 								}
 								else Menu.unit[3].setEnabled(false);
 								break;
@@ -166,31 +165,26 @@ public class Game extends JPanel implements ActionListener, Constants{
 	}
 	
 	//finds the enemy unit nearest to the deployed unit
-	public Unit getClosestEnemy(Unit u){
+	public static Defense getClosestEnemy(Unit u){
 		
 		int x = u.getX();
 		int y = u.getY();
-		int target[] = {0, 0};
-		double minDistance = 50;
+		double minDistance = 1500;
 		double distance = 0;
-		Unit enemy = new Unit();
+		Defense enemy = new Defense();
 		
 		//get the troop's distance from the town hall
 		distance = Math.sqrt(Math.pow(t.getX()-x, 2) + Math.pow(t.getY() - y, 2));
 		if(distance < minDistance){
 			minDistance = distance;
-			target[0] = t.getX();
-			target[1] = t.getY();
-			enemy = (Unit) t;
+			enemy = (Defense) t;
 		}
 		//get the troop's distance from all the cannons
 		for(Cannon c: cannonsDeployed){
 			distance = Math.sqrt(Math.pow(c.getX()-x, 2) + Math.pow(c.getY() - y, 2));
 			if(distance < minDistance){
 				minDistance = distance;
-				target[0] = c.getX();
-				target[1] = c.getY();
-				enemy = (Unit) c;
+				enemy = (Defense) c;
 			}
 		}
 		//get the troop's distance from all the walls
@@ -198,9 +192,7 @@ public class Game extends JPanel implements ActionListener, Constants{
 			distance = Math.sqrt(Math.pow(w.getX()-x, 2) + Math.pow(w.getY() - y, 2));
 			if(distance < minDistance){
 				minDistance = distance;
-				target[0] = w.getX();
-				target[1] = w.getY();
-				enemy = (Unit) w;
+				enemy = (Defense) w;
 			}
 		}
 		//get the troop's distance from all the archer towers
@@ -208,17 +200,12 @@ public class Game extends JPanel implements ActionListener, Constants{
 			distance = Math.sqrt(Math.pow(at.getX()-x, 2) + Math.pow(at.getY() - y, 2));
 			if(distance < minDistance){
 				minDistance = distance;
-				target[0] = at.getX();
-				target[1] = at.getY();
-				enemy = (Unit) at;
+				enemy = (Defense) at;
 			}
 		}
 		
-		System.out.println("A: "+target[0]+" "+target[1]);
 		System.out.println("B: "+enemy.getX()+" "+enemy.getY() +"\n");
 		return enemy;
-		//move(u, target);
-		//attackEnemy(u, enemy);
 	}
 	
 	//reads the file that contains the layout of the enemy's camp
@@ -233,7 +220,6 @@ public class Game extends JPanel implements ActionListener, Constants{
 				String[] tokens = line.split("\\s+");
 				for(int i = 0; i < 25; i++){
 					switch(Integer.parseInt(tokens[i])){
-						//case -1: square[lineNum][i].setEnabled(false);
 						case 1:	if(hasTownhall == false){
 									t = new Townhall();
 									t.setX(lineNum);
@@ -245,11 +231,12 @@ public class Game extends JPanel implements ActionListener, Constants{
 								field[lineNum][i] = 1;
 								break;
 						case 2: Cannon c = new Cannon();
+								//c.buildingAttackTimer = new BuildingAttackTimer(c);
 								c.setX(lineNum);
 								c.setY(i);
 								square[lineNum][i].setBackground(c.getColor());
 								square[lineNum][i].setEnabled(false);
-								field[lineNum][i] = 1;
+								field[lineNum][i] = 2;
 								cannonsDeployed.add(c);
 								break;
 						case 3: Wall w = new Wall();
@@ -257,15 +244,16 @@ public class Game extends JPanel implements ActionListener, Constants{
 								w.setY(i);
 								square[lineNum][i].setBackground(w.getColor());
 								square[lineNum][i].setEnabled(false);
-								field[lineNum][i] = 1;
+								field[lineNum][i] = 3;
 								wallsDeployed.add(w);
 								break;
 						case 4: ArcherTower at = new ArcherTower();
+								//at.buildingAttackTimer = new BuildingAttackTimer(at);
 								at.setX(lineNum);
 								at.setY(i);
 								square[lineNum][i].setBackground(at.getColor());
 								square[lineNum][i].setEnabled(false);
-								field[lineNum][i] = 1;
+								field[lineNum][i] = 4;
 								archerTowersDeployed.add(at);
 								break;
 					}
@@ -277,57 +265,48 @@ public class Game extends JPanel implements ActionListener, Constants{
 		}
 	}
 	
+	public void createLog(){
+		
+	}
+	
+	public static void destroyBuilding(Defense d){
+		switch(d.getType()){
+			case 1: break;
+			case 2: cannonsDeployed.remove(d);
+					break;
+			case 3: wallsDeployed.remove(d);
+					break;
+			case 4: archerTowersDeployed.remove(d);
+					break;
+		}
+	}
+	
 	public static void destroyUnit(Unit u){
 		switch(u.getType()){
-			case 1: break;
-			case 2: cannonsDeployed.remove(u);
+			case 5: barbariansDeployed.remove(u);
 					break;
-			case 3: wallsDeployed.remove(u);
+			case 6: archersDeployed.remove(u);
 					break;
-			case 4: archerTowersDeployed.remove(u);
+			case 7: wizardsDeployed.remove(u);
+					break;
+			case 8: wallBreakersDeployed.remove(u);
 					break;
 		}
 	}
 	
 	public static void deploy(Unit u){
-		field[u.getX()][u.getY()] = 1;
+		field[u.getX()][u.getY()] = u.getType();
+		Game.square[u.getX()][u.getY()].setBackground(u.getColor());
 	}
 	
 	public static void remove(int x, int y){
 		field[x][y] = 0;
+		Game.square[x][y].setBackground(Color.BLACK);
 	}
 	
 	public static boolean checkIfOccupied(int x, int y){
-		if(field[x][y] == 1) return true;
+		if(field[x][y] != 0) return true;
 		else return false;
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		/*for(Barbarian b: barbariansDeployed){
-			if(!b.readyToAttack){
-				b.setEnemy(getClosestEnemy(b));
-				b.moveTimer.timer.start();
-			}
-		}
-		for(Archer a: archersDeployed){
-			if(!a.readyToAttack){
-				a.setEnemy(getClosestEnemy(a));
-				a.moveTimer.timer.start();
-			}
-		}
-		for(Wizard w: wizardsDeployed){
-			if(!w.readyToAttack){
-				w.setEnemy(getClosestEnemy(w));
-				w.moveTimer.timer.start();
-			}
-		}
-		for(WallBreaker wb: wallBreakersDeployed){
-			if(!wb.readyToAttack){
-				wb.setEnemy(getClosestEnemy(wb));
-				wb.moveTimer.timer.start();
-			}
-		}*/
 	}
 	
 }

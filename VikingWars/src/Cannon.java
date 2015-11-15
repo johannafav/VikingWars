@@ -1,6 +1,6 @@
 import java.awt.Color;
 
-public class Cannon extends Unit{
+public class Cannon extends Defense{
 	
 	public Cannon(){
 		this.type = 2;

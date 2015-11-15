@@ -3,7 +3,7 @@ import java.awt.Color;
 import javax.swing.Timer;
 
 
-public class Unit {
+public class Unit{
 
 	protected int type;
 	protected int x;
@@ -15,14 +15,16 @@ public class Unit {
 	protected UnitMoveTimer moveTimer;
 	protected AttackTimer attackTimer;
 	protected boolean readyToAttack = false;
-	protected Unit enemy;
+	protected boolean foundEnemy = false;
+	protected Defense enemy = null;
 	
-	public void move(Unit u, Unit e){
+	//moves the troop
+	public void move(Unit u){
+		Defense e = u.getEnemy();
 		int enemyPositionX = e.getX();
 		int enemyPositionY = e.getY();
 		int prevPositionX = u.getX();
 		int prevPositionY = u.getY();
-		boolean left = false, right = false, top = false, down= false, inPositionX = false, inPositionY = false;
 		if(prevPositionY < enemyPositionY-1 && !Game.checkIfOccupied(prevPositionX, prevPositionY+1)){
 			u.setY(prevPositionY+1);
 		}
@@ -59,48 +61,50 @@ public class Unit {
 				u.setX(prevPositionX-1);
 			}
 		}
-		Game.remove(u.getX(), u.getY());
+		Game.remove(prevPositionX, prevPositionY);
 		Game.deploy(u);
-		Game.square[prevPositionX][prevPositionY].setBackground(Color.BLACK);
-		Game.square[u.getX()][u.getY()].setBackground(u.getColor());
-	}
-	
-	public int getType() {
-		return type;
+		//Game.square[prevPositionX][prevPositionY].setBackground(Color.BLACK);
+		//Game.square[u.getX()][u.getY()].setBackground(u.getColor());
 	}
 
-	public void setType(int type) {
-		this.type = type;
-	}
-
-	public void attackEnemy(Unit attacker, Unit enemy){
-		while(attacker.getLife() > 0 && enemy.getLife() > 0){
+	//attacks the enemy
+	public void attackEnemy(Unit attacker, Defense enemy){
+		if(attacker.type == 8) attacker.setDamage(enemy);
+		if(attacker.getLife() > 0 && enemy.getLife() > 0){
 			enemy.setLife(enemy.getLife() - attacker.getDamage());
+			if(enemy.getLife() <= enemy.getLife()/4) Game.square[enemy.getX()][enemy.getY()].setBackground(Color.RED);
+			else Game.square[enemy.getX()][enemy.getY()].setBackground(Color.ORANGE);
 			System.out.println(attacker.getClass().toString() + " attacked " + enemy.getClass().toString());
-			System.out.println("Enemy life: " + enemy.getLife());
-			System.out.println("Attacker life: " +attacker.getLife());
+			System.out.println(enemy.getClass().toString() + " life: " + enemy.getLife());
+			System.out.println(attacker.getClass().toString() + " life: " +attacker.getLife());
 		}
 		if(attacker.getLife() <= 0){
-			Game.square[attacker.getX()][attacker.getY()].setBackground(Color.BLACK);
-			Game.remove(enemy.getX(), enemy.getY());
-			enemy.readyToAttack = false;
-			Game.destroyUnit(enemy);
-			System.out.println(attacker.getClass().toString());
+			Game.remove(attacker.getX(), attacker.getY());
+			attacker.attackTimer.timer.stop();
+			Game.destroyUnit(attacker);
+			System.out.println(attacker.getClass().toString()+" destroyed");
 		}
 		if(enemy.getLife() <= 0){
-			Game.square[enemy.getX()][enemy.getY()].setBackground(Color.BLACK);
 			Game.remove(enemy.getX(), enemy.getY());
-			enemy.readyToAttack = false;
-			Game.destroyUnit(enemy);
-			System.out.println(enemy.getClass().toString());
+			if(attacker != null){
+				attacker.readyToAttack = false;
+				attacker.attackTimer.enemy = null;
+			}
+			Game.destroyBuilding(enemy);
+			System.out.println(enemy.getClass().toString()+" destroyed");
 		}
 	}
 	
-	public Unit getEnemy(){
+	public void setDamage(Defense d){
+		if(d.type == 3) this.damage = 100;
+		else this.damage = 25;
+	}
+	
+	public Defense getEnemy(){
 		return enemy;
 	}
 	
-	public void setEnemy(Unit e){
+	public void setEnemy(Defense e){
 		this.enemy = e;
 	}
 
@@ -144,8 +148,12 @@ public class Unit {
 		return color;
 	}
 	
-	public void findNearestEnemy(int x, int y){
-		
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 	
 }
