@@ -1,3 +1,9 @@
+/*
+ * VIKING WARS
+ * CMSC 137 LABORATORY PROJECT
+ * 1st Semester AY 2015-2016
+ */
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -22,21 +28,18 @@ public class ChatUI extends JPanel implements ActionListener{
 	static JTextArea messagesPanel;
 	JLabel chatLabel = new JLabel("Global Chat");
 	Client client;
-	//String username = "Johan";
-	//String server = "localhost";
 	
 	public ChatUI(String host, int port, String username){
 		this.setPreferredSize(new Dimension(250, 700));
 		this.setOpaque(false);
 		chatBox.setPreferredSize(new Dimension(240, 45));
 		chatBox.setMargin(new Insets(5,5,5,5));
-		//messagesPanel.setPreferredSize(new Dimension(240,600));
 		messagesPanel = new JTextArea("Welcome to Viking Wars Chat Room!\nPress enter to send a message.\n\n", 36, 20);
 		messagesPanel.setBackground(new Color(230,230,250));
 		messagesPanel.setMargin(new Insets(10,10,10,10));
 		textPanel.add(new JScrollPane(messagesPanel));
 		messagesPanel.setEditable(false);
-		chatLabel.setBackground(new Color(230,230,250));
+		chatLabel.setBackground(new Color(226, 226, 243));
 		chatLabel.setBorder(new EmptyBorder(10,80,10,0));
 		chatLabel.setFont(new Font("Calibri", Font.PLAIN, 15));
 		chatLabel.setOpaque(true);

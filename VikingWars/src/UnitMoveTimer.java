@@ -1,3 +1,9 @@
+/*
+ * VIKING WARS
+ * CMSC 137 LABORATORY PROJECT
+ * 1st Semester AY 2015-2016
+ */
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 

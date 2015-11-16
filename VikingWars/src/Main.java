@@ -1,3 +1,9 @@
+/*
+ * VIKING WARS
+ * CMSC 137 LABORATORY PROJECT
+ * 1st Semester AY 2015-2016
+ */
+
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,15 +30,12 @@ import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 public class Main implements Constants{
 	
 	protected static ArrayList<String> playerNames = new ArrayList<String>();
-	protected static String thisPlayer;// = "Johan";
+	protected static String thisPlayer;
 	protected static String host;
-	
-	//public final static int WAITING_FOR_PLAYERS = 0;
-	//public final static int IN_PROGRESS = 0;
-	//public final static int GAME_OVER = 0;
 	
 	public static int gameState = WAITING_FOR_PLAYERS;
 	
+	//creates main window
 	public static void main(String args[]){
 		try {
 			UIManager.setLookAndFeel(
@@ -80,78 +83,10 @@ public class Main implements Constants{
 				}	
 			}
 		});
-		/*enterPlayerName.setPreferredSize(new Dimension(200, 25));
-		enterPlayerName.addKeyListener(new KeyListener(){
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-				startButton.setEnabled(true);
-				
-			}
-		});
-		start.add(playerName);
-		start.add(enterPlayerName);
-		start.add(startButton);*/
 		Menu menu = new Menu();
 		Game game = new Game();
-		//ChatUI chat = new ChatUI();
-		
-		/*int portNumber = 1500;
-		String serverAddress = "localhost";
-		String userName = "Anonymous";
-
-		// depending of the number of arguments provided we fall through
-		switch(args.length) {
-			// > javac Client username portNumber serverAddr
-			case 3:
-				serverAddress = args[2];
-			// > javac Client username portNumber
-			case 2:
-				try {
-					portNumber = Integer.parseInt(args[1]);
-				}
-				catch(Exception e) {
-					System.out.println("Invalid port number.");
-					System.out.println("Usage is: > java Client [username] [portNumber] [serverAddress]");
-					return;
-				}
-			// > javac Client username
-			case 1: 
-				userName = args[0];
-			// > java Client
-			case 0:
-				break;
-			// invalid number of arguments
-			default:
-				System.out.println("Usage is: > java Client [username] [portNumber] {serverAddress]");
-			return;
-		}
-		// create the Client object
-		ChatClient client = new ChatClient(serverAddress, portNumber, userName);
-		// test if we can start the connection to the Server
-		// if it failed nothing we can do
-		if(!client.start())
-			return;
-		*/
-		/*int portNumber = 1500;
-		String serverAddress = "localhost";
-		String userName = "Anonymous";*/
 		mainGamePanel.add(menu);
 		mainGamePanel.add(game);
-		//((FlowLayout)mainGamePanel.getLayout()).setVgap(0);
-		//((FlowLayout)mainGamePanel.getLayout()).setHgap(0);
 		mainGamePanel.setBorder(new EmptyBorder(5,5,5,5));
 		frame.setContentPane(panel);
 		frame.setVisible(true);

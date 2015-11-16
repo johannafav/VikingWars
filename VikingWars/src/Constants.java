@@ -1,6 +1,6 @@
 /**
  * Important game constants
- * @author Joseph Anthony C. Hermocill
+ * @author Joseph Anthony C. Hermocilla
  *
  */
 public interface Constants {

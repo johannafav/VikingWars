@@ -1,3 +1,10 @@
+/*
+ * VIKING WARS
+ * CMSC 137 LABORATORY PROJECT
+ * 1st Semester AY 2015-2016
+ * Source: dreaminforge.net
+ */
+
 import java.io.*;
 /*
  * This class defines the different type of messages that will be exchanged between the

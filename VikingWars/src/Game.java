@@ -1,3 +1,9 @@
+/*
+ * VIKING WARS
+ * CMSC 137 LABORATORY PROJECT
+ * 1st Semester AY 2015-2016
+ */
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -269,8 +275,11 @@ public class Game extends JPanel implements Constants{
 		
 	}
 	
+	//called when an enemy's building is destroyed
+	//that building is removed from the list of functional buildings
 	public static void destroyBuilding(Defense d){
 		switch(d.getType()){
+			//the first player to destroy an opponent's town hall is the winner
 			case 1: stop();
 					JOptionPane.showMessageDialog(square[5][5], Main.thisPlayer + " won!");
 					break;
@@ -283,6 +292,8 @@ public class Game extends JPanel implements Constants{
 		}
 	}
 	
+	//called when an troop/unit is destroyed
+	//that unit is removed from the list of deployed troops
 	public static void destroyUnit(Unit u){
 		switch(u.getType()){
 			case 5: barbariansDeployed.remove(u);
@@ -296,7 +307,9 @@ public class Game extends JPanel implements Constants{
 		}
 	}
 	
+	//called when there is a winner
 	public static void stop(){
+		//stops all deployed troops from moving or attacking
 		for(Barbarian b: barbariansDeployed){
 			b.moveTimer.timer.stop();
 			b.attackTimer.timer.stop();
@@ -313,32 +326,38 @@ public class Game extends JPanel implements Constants{
 			wb.moveTimer.timer.stop();
 			wb.attackTimer.timer.stop();
 		}
+		//stops all defenses from attacking
 		for(ArcherTower at:archerTowersDeployed){
 			at.buildingAttackTimer.timer.stop();
 		}
 		for(Cannon c: cannonsDeployed){
 			c.buildingAttackTimer.timer.stop();
 		}
+		//disables the game board
 		for(int i = 0; i < 25; i++){
 			for(int j = 0; j < 25; j++){
 				square[i][j].setEnabled(false);
 			}
 		}
+		//disables the pool of units
 		for(int i = 0; i < 4; i++){
 			Menu.unit[i].setEnabled(false);
 		}
 	}
 	
+	//lay down a troop in the field
 	public static void deploy(Unit u){
 		field[u.getX()][u.getY()] = u.getType();
 		Game.square[u.getX()][u.getY()].setBackground(u.getColor());
 	}
 	
+	//remove a troop/building from a field
 	public static void remove(int x, int y){
 		field[x][y] = 0;
 		Game.square[x][y].setBackground(Color.BLACK);
 	}
 	
+	//function that returns true if the particular coordinates are occupied and false if not
 	public static boolean checkIfOccupied(int x, int y){
 		if(field[x][y] != 0) return true;
 		else return false;
