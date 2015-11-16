@@ -231,7 +231,7 @@ public class Game extends JPanel implements Constants{
 								field[lineNum][i] = 1;
 								break;
 						case 2: Cannon c = new Cannon();
-								//c.buildingAttackTimer = new BuildingAttackTimer(c);
+								c.buildingAttackTimer = new BuildingAttackTimer(c);
 								c.setX(lineNum);
 								c.setY(i);
 								square[lineNum][i].setBackground(c.getColor());
@@ -248,7 +248,7 @@ public class Game extends JPanel implements Constants{
 								wallsDeployed.add(w);
 								break;
 						case 4: ArcherTower at = new ArcherTower();
-								//at.buildingAttackTimer = new BuildingAttackTimer(at);
+								at.buildingAttackTimer = new BuildingAttackTimer(at);
 								at.setX(lineNum);
 								at.setY(i);
 								square[lineNum][i].setBackground(at.getColor());
@@ -271,7 +271,9 @@ public class Game extends JPanel implements Constants{
 	
 	public static void destroyBuilding(Defense d){
 		switch(d.getType()){
-			case 1: break;
+			case 1: stop();
+					JOptionPane.showMessageDialog(square[5][5], Main.thisPlayer + " won!");
+					break;
 			case 2: cannonsDeployed.remove(d);
 					break;
 			case 3: wallsDeployed.remove(d);
@@ -291,6 +293,39 @@ public class Game extends JPanel implements Constants{
 					break;
 			case 8: wallBreakersDeployed.remove(u);
 					break;
+		}
+	}
+	
+	public static void stop(){
+		for(Barbarian b: barbariansDeployed){
+			b.moveTimer.timer.stop();
+			b.attackTimer.timer.stop();
+		}
+		for(Archer a: archersDeployed){
+			a.moveTimer.timer.stop();
+			a.attackTimer.timer.stop();
+		}
+		for(Wizard w: wizardsDeployed){
+			w.moveTimer.timer.stop();
+			w.attackTimer.timer.stop();
+		}
+		for(WallBreaker wb: wallBreakersDeployed){
+			wb.moveTimer.timer.stop();
+			wb.attackTimer.timer.stop();
+		}
+		for(ArcherTower at:archerTowersDeployed){
+			at.buildingAttackTimer.timer.stop();
+		}
+		for(Cannon c: cannonsDeployed){
+			c.buildingAttackTimer.timer.stop();
+		}
+		for(int i = 0; i < 25; i++){
+			for(int j = 0; j < 25; j++){
+				square[i][j].setEnabled(false);
+			}
+		}
+		for(int i = 0; i < 4; i++){
+			Menu.unit[i].setEnabled(false);
 		}
 	}
 	

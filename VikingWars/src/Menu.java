@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -56,8 +57,9 @@ public class Menu extends JPanel{
 		poolPanel.add(wallBreakerPool);
 		poolPanel.setLayout(new BoxLayout(poolPanel, BoxLayout.Y_AXIS));
 		poolPanel.setPreferredSize(new Dimension(190, 120));
-		poolPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		poolPanel.setBorder(new EmptyBorder(10, 10, 5, 5));
 		poolPanel.setBackground(new Color(230,230,250));
+		//poolPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		unitPool.setFont(new Font("Calibri", Font.PLAIN, 15));
 		unitPool.setBackground(new Color(230,230,250));
 		unitPool.setOpaque(true);

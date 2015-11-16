@@ -70,8 +70,9 @@ public class Main implements Constants{
 						 cl.show(panel, "");
 					     thisPlayer = start.enterPlayerName.getText();
 					     host = start.enterHostName.getText();
+					     System.out.println(host);
 					     playerNames.add(thisPlayer);
-					     ChatUI client = new ChatUI("localhost", 1500, thisPlayer);
+					     ChatUI client = new ChatUI(host, 1500, thisPlayer);
 					     mainGamePanel.add(client);
 					     //GameServer gs = new GameServer();
 					     //ChatServer cs = new ChatServer();

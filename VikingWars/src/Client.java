@@ -153,7 +153,7 @@ public class Client  {
 	public static void main(String[] args) {
 		// default values
 		int portNumber = 1500;
-		String serverAddress = "localhost";
+		String serverAddress = Main.host;
 		String userName = "Anonymous";
 
 		// depending of the number of arguments provided we fall through
