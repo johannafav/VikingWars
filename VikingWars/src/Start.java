@@ -17,6 +17,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -27,7 +30,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 
-public class Start extends JPanel{
+public class Start extends JPanel implements Constants{
 	
 	JButton startButton = new JButton("Start game");
 	Container container = new Container();
@@ -39,7 +42,10 @@ public class Start extends JPanel{
 	JLabel playerName = new JLabel("Enter player name: ");
 	JLabel hostName = new JLabel("Host: ");
 	JLabel portNum = new JLabel("Port: ");
+	JLabel status = new JLabel();
 	static JLabel playerStatus = new JLabel("");
+	
+	int gameStage = WAITING_FOR_PLAYERS;
 	
 	public Start(){
 		setBackground(new Color(230, 230, 250));
@@ -54,12 +60,13 @@ public class Start extends JPanel{
 		startButton.setFont(new Font("Calibri", Font.PLAIN, 16));
 		startButton.setBackground(new Color(230, 230, 250));
 		startButton.setFocusPainted(isLightweight());
-		centerPanel.setPreferredSize(new Dimension(220, 220));
+		centerPanel.setPreferredSize(new Dimension(220, 250));
 		centerPanel.setBorder(new EmptyBorder(5,5,5,5));
 		//centerPanel.setBorder(new LineBorder(Color.DARK_GRAY));
 		centerPanel.add(title);
 		centerPanel.add(container);
 		centerPanel.add(startButton);
+		centerPanel.add(playerStatus);
 		add(centerPanel);
 		
 		enterPlayerName.addKeyListener(new KeyListener(){
@@ -93,6 +100,7 @@ public class Start extends JPanel{
 		fix(hostName, enterHostName);
 		fix(portNum, enterPortNum);
 		fix(playerName, enterPlayerName);
+		container.add(status);
 	}
 	
 	//function that adds the label and corresponding text field to the container

@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -32,8 +33,9 @@ public class Main implements Constants{
 	protected static ArrayList<String> playerNames = new ArrayList<String>();
 	protected static String thisPlayer;
 	protected static String host;
+	protected static Game game;
 	
-	public static int gameState = WAITING_FOR_PLAYERS;
+	public static int gameState = GAME_START;
 	
 	//creates main window
 	public static void main(String args[]){
@@ -55,6 +57,7 @@ public class Main implements Constants{
 		}
 		JFrame frame = new JFrame("Viking Wars");
 		JPanel panel = new JPanel();
+		JPanel loadPanel = new JPanel();
 		JPanel mainGamePanel = new JPanel();
 		Start start = new Start();
 		panel.setBackground(new Color(245,245,245));
@@ -64,29 +67,39 @@ public class Main implements Constants{
 		start.startButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if(e.getSource() == start.startButton){
-					 /*if(playerNames.size() < 3){
+					/*while(playerNames.size() < 3){
 						 gameState = WAITING_FOR_PLAYERS;
 						 Start.playerStatus.setText("Waiting for players"); 
-					 }
-					 else{*/
-						 CardLayout cl = (CardLayout)(panel.getLayout());
+					 }*/
+						/*loadPanel.add(Start.playerStatus);
+						loadPanel.setPreferredSize(new Dimension(220, 250));
+						CardLayout cl = (CardLayout)(loadPanel.getLayout());
+						cl.show(loadPanel, "");*/
+						CardLayout cl = (CardLayout)(panel.getLayout());
 						 cl.show(panel, "");
 					     thisPlayer = start.enterPlayerName.getText();
 					     host = start.enterHostName.getText();
-					     System.out.println(host);
+					     Menu.playerLabel.setText("Welcome, "+thisPlayer+"!");
+					     //JPanel temp = new JPanel();
+					     //temp.setPreferredSize(new Dimension(700, 700));
+					     try {
+								game = new Game();
+								mainGamePanel.add(game);
+							} catch (SocketException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+					     //mainGamePanel.add(temp);
 					     playerNames.add(thisPlayer);
 					     ChatUI client = new ChatUI(host, 1500, thisPlayer);
 					     mainGamePanel.add(client);
 					     //GameServer gs = new GameServer();
 					     //ChatServer cs = new ChatServer();
-					 //}
 				}	
 			}
 		});
 		Menu menu = new Menu();
-		Game game = new Game();
 		mainGamePanel.add(menu);
-		mainGamePanel.add(game);
 		mainGamePanel.setBorder(new EmptyBorder(5,5,5,5));
 		frame.setContentPane(panel);
 		frame.setVisible(true);

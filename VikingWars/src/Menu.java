@@ -43,6 +43,8 @@ public class Menu extends JPanel{
 	public static JLabel wizardPool = new JLabel("Wizards Remaining: " + wizardsLeft);
 	public static JLabel wallBreakerPool = new JLabel("Wall Breaker Remaining: " + wallBreakersLeft);
 	public static JLabel unitPool = new JLabel("Unit Pool");
+	public static JLabel playerLabel = new JLabel();
+	public static JLabel statusLabel = new JLabel();
 	JLabel legend = new JLabel("Enemy Camp Legend ");
 	public Color colorPalette[] = {Color.pink, new Color(148, 0, 215), new Color(252, 231, 88), new Color(116, 186, 185)};
 	public Color defenseColorPalette[] = {new Townhall().getColor(), new Wall().getColor(), new Cannon().getColor(), new ArcherTower().getColor()};
@@ -51,6 +53,17 @@ public class Menu extends JPanel{
 	String unitCode[] = {"5", "6", "7", "8"};
 	
 	public Menu(){
+		playerLabel.setPreferredSize(new Dimension(190, 35));
+		playerLabel.setFont(new Font("Calibri", Font.PLAIN, 15));
+		playerLabel.setBackground(new Color(226,226,243));
+		playerLabel.setBorder(new EmptyBorder(10,10,10,0));
+		playerLabel.setOpaque(true);
+		statusLabel.setPreferredSize(new Dimension(190, 35));
+		statusLabel.setFont(new Font("Calibri", Font.PLAIN, 15));
+		statusLabel.setBackground(new Color(226,226,243));
+		statusLabel.setBorder(new EmptyBorder(10,10,10,0));
+		statusLabel.setOpaque(true);
+		add(playerLabel);
 		createStatusPane();
 		createUnitPane();
 		createLegend();
@@ -61,6 +74,7 @@ public class Menu extends JPanel{
 		add(unitPanel);
 		add(legend);
 		add(defensePanel);
+		add(statusLabel);
 	}
 	
 	//creates status pane that shows how many units are still available for deployment
@@ -119,6 +133,7 @@ public class Menu extends JPanel{
 			temp.setPreferredSize(new Dimension(10,10));
 			temp.setBackground(defenseColorPalette[i]);
 			JLabel label = new JLabel(defenseType[i]);
+			temp.setBorder(new EmptyBorder(3,5,3,5));
 			label.setFont(new Font("Calibri", Font.PLAIN, 14));
 			label.setBackground(defenseColorPalette[i]);
 			temp.add(label);

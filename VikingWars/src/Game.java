@@ -15,6 +15,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -24,12 +25,13 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 
-public class Game extends JPanel implements Constants{
+public class Game extends JPanel implements Constants, Runnable{
 	
 	/*
 	 * Codes for Units:
@@ -54,22 +56,32 @@ public class Game extends JPanel implements Constants{
 	static ArrayList<Wall> wallsDeployed = new ArrayList<Wall>();
 	static ArrayList<ArcherTower> archerTowersDeployed = new ArrayList<ArcherTower>();
 	
+	JPanel panel = new JPanel();
+	static JLabel status = new JLabel();
+	static int gameState;
+	static String playerName = Main.thisPlayer;
 	static Townhall t;
 	int port = 6400;
-	protected DatagramSocket socket;
+	protected DatagramSocket socket = new DatagramSocket();
 	private String host;
+	String serverData;
+	boolean connected=false;
+	Thread th =new Thread(this);
 	
-	public Game(/*String host, int port*/){
-		Main.gameState = Main.IN_PROGRESS;
+	public Game() throws SocketException{
 		this.setLayout(new GridLayout(25, 25, 1, 1));
 		this.setPreferredSize(new Dimension(700, 700));
 		this.setBackground(Color.WHITE);
-		createGameBoard();
-		readFile();
-		//createLog();
-		this.setBorder(new EmptyBorder(1,1,1,1));
+		setBorder(new EmptyBorder(1,1,1,1));
+		status.setBackground(new Color(226,226,243));
+		status.setPreferredSize(new Dimension(50,50));
+		this.panel = this;
 		this.host = Main.host;
 		this.port = port;
+		socket.setSoTimeout(100);
+		th.start();
+		createGameBoard();
+		readFile();
 	}
 	
 	//creates the 25x25 grid of panels that serve as the playing field
@@ -78,8 +90,10 @@ public class Game extends JPanel implements Constants{
 			for(int j = 0; j < 25; j++){
 				square[i][j] = new JButton();
 				square[i][j].setBackground(Color.black);
+				square[i][j].setEnabled(false);
+				square[i][j].setVisible(false);
 				addListener(square[i][j]);
-				this.add(square[i][j]);
+				panel.add(square[i][j]);
 				field[i][j] = 0;
 			}
 		}
@@ -113,7 +127,8 @@ public class Game extends JPanel implements Constants{
 									btn.setBackground(b.getColor());
 									barbariansDeployed.add(b);
 									Menu.barbariansLeft--;
-									Menu.barbarianPool.setText("Barbarians Remaining: " + Menu.barbariansLeft);
+									//Menu.barbarianPool.setText("Barbarians Remaining: " + Menu.barbariansLeft);
+									send("PLAYER "+playerName+" "+b.getType()+" "+Menu.barbariansLeft);
 									b.setEnemy(getClosestEnemy(b));
 									b.moveTimer = new UnitMoveTimer(b/*, b.getEnemy()*/);
 								}
@@ -127,7 +142,8 @@ public class Game extends JPanel implements Constants{
 									btn.setBackground(a.getColor());
 									archersDeployed.add(a);
 									Menu.archersLeft--;
-									Menu.archerPool.setText("Archers Remaining: " + Menu.archersLeft);
+									send("PLAYER "+playerName+" "+a.getType()+" "+Menu.archersLeft);
+									//Menu.archerPool.setText("Archers Remaining: " + Menu.archersLeft);
 									a.setEnemy(getClosestEnemy(a));
 									a.moveTimer = new UnitMoveTimer(a);
 									//System.out.println("Coordinates:"+i+" "+j);
@@ -142,7 +158,8 @@ public class Game extends JPanel implements Constants{
 									btn.setBackground(w.getColor());
 									wizardsDeployed.add(w);
 									Menu.wizardsLeft--;
-									Menu.wizardPool.setText("Wizards Remaining: " + Menu.wizardsLeft);
+									send("PLAYER "+playerName+" "+w.getType()+" "+Menu.wizardsLeft);
+									//Menu.wizardPool.setText("Wizards Remaining: " + Menu.wizardsLeft);
 									w.setEnemy(getClosestEnemy(w));
 									w.moveTimer = new UnitMoveTimer(w);
 								}
@@ -156,7 +173,8 @@ public class Game extends JPanel implements Constants{
 									btn.setBackground(wb.getColor());
 									wallBreakersDeployed.add(wb);
 									Menu.wallBreakersLeft--;
-									Menu.wallBreakerPool.setText("Wall Breakers Remaining: " + Menu.wallBreakersLeft);
+									send("PLAYER "+playerName+" "+wb.getType()+" "+Menu.wallBreakersLeft);
+									//Menu.wallBreakerPool.setText("Wall Breakers Remaining: " + Menu.wallBreakersLeft);
 									wb.setEnemy(getClosestEnemy(wb));
 									wb.moveTimer = new UnitMoveTimer(wb);
 								}
@@ -280,8 +298,9 @@ public class Game extends JPanel implements Constants{
 	public static void destroyBuilding(Defense d){
 		switch(d.getType()){
 			//the first player to destroy an opponent's town hall is the winner
-			case 1: stop();
-					JOptionPane.showMessageDialog(square[5][5], Main.thisPlayer + " won!");
+			case 1: //gameState = GAME_END;
+					stop();
+					Main.game.send("WINNER "+playerName);
 					break;
 			case 2: cannonsDeployed.remove(d);
 					break;
@@ -361,6 +380,109 @@ public class Game extends JPanel implements Constants{
 	public static boolean checkIfOccupied(int x, int y){
 		if(field[x][y] != 0) return true;
 		else return false;
+	}
+	
+	/**
+	 * Helper method for sending data to server
+	 * @param msg
+	 */
+	public void send(String msg){
+		try{
+			byte[] buf = msg.getBytes();
+        	InetAddress address = InetAddress.getByName(host);
+        	DatagramPacket packet = new DatagramPacket(buf, buf.length, address, PORT);
+        	socket.send(packet);
+        }catch(Exception e){}
+		
+	}
+	
+	/**
+	 * The juicy part!
+	 */
+	public void run(){
+		while(true){
+			try{
+				Thread.sleep(1);
+			}catch(Exception ioe){}
+						
+			//Get the data from players
+			byte[] buf = new byte[256];
+			DatagramPacket packet = new DatagramPacket(buf, buf.length);
+			try{
+     			socket.receive(packet);
+			}catch(Exception ioe){/*lazy exception handling :)*/}
+			
+			serverData=new String(buf);
+			serverData=serverData.trim();
+			
+			//if (!serverData.equals("")){
+			//	System.out.println("Server Data:" +serverData);
+			//}
+
+			//if player is not yet connected 
+			if (!connected && serverData.startsWith("CONNECTED")){
+				connected=true;
+				send("WAITING"+Main.thisPlayer);
+				Menu.statusLabel.setText("Waiting for players...");
+				System.out.println("Connected.");
+			}else if (!connected){
+				System.out.println("Connecting..");
+				send("CONNECT "+Main.thisPlayer);
+			}else if (connected){
+				//if there are still insufficient number of players
+				if(serverData.startsWith("START")){
+					Menu.statusLabel.setText("Game in progress");
+					for(int i = 0; i < 25; i++){
+						for(int j = 0; j < 25; j++){
+							square[i][j].setVisible(true);
+							square[i][j].setEnabled(true);
+						}
+					}
+					repaint();
+				}
+				//if a player deploys a unit, update the counter corresponding to that unit
+				if(serverData.startsWith("PLAYER")){
+					System.out.println("Server Data:" +serverData);
+					String[] playersInfo = serverData.split(":");
+					System.out.println(playersInfo.length);
+					for (int i=0;i<playersInfo.length;i++){
+						String[] playerInfo = playersInfo[i].split(" ");
+						String pname =playerInfo[1];
+						int x = Integer.parseInt(playerInfo[2]);
+						int y = Integer.parseInt(playerInfo[3]);
+						switch(x){
+							case 5: Menu.barbarianPool.setText("Barbarians Remaining: " + y);
+									if(y == 0) Menu.unit[0].setEnabled(false);
+									break;
+							case 6: Menu.archerPool.setText("Archers Remaining: " + y);
+									if(y == 0) Menu.unit[1].setEnabled(false);
+									break;
+							case 7: Menu.wizardPool.setText("Wizards Remaining: " + y);
+									if(y == 0) Menu.unit[2].setEnabled(false);
+									break;
+							case 8: Menu.wallBreakerPool.setText("Wall Breakers Remaining: " + y);
+									if(y == 0) Menu.unit[3].setEnabled(false);
+									break;
+						}
+					}
+				}
+				//if a player has already won, stop the game
+				if(serverData.startsWith("WINNER")){
+					stop();
+					String[] info = serverData.split(" ");
+					Menu.statusLabel.setText("GAME OVER");
+					//String[] playersInfo = serverData.split(":");
+					/*for (int i=0;i<playersInfo.length;i++){
+						String[] playerInfo = playersInfo[i].split(" ");
+						String winner = playerInfo[1];*/
+						//stop();
+					if(info[1].equals(playerName)) JOptionPane.showMessageDialog(square[5][5], "You won!");
+					if(!info[1].equals(playerName)) JOptionPane.showMessageDialog(square[5][5], info[1] + " won!");
+					//}
+					//JOptionPane.showMessageDialog(square[5][5], info[1] + " won!");
+				}
+			}			
+		}
 	}
 	
 }

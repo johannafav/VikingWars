@@ -22,10 +22,11 @@ public class NetPlayer {
 	 */
 	private String name;
 	
+	private boolean winner = false;
 	/**
 	 * The position of player
 	 */
-	private int x,y;
+	private int x,y, remaining, remainingClass;
 
 	/**
 	 * Constructor
@@ -96,6 +97,30 @@ public class NetPlayer {
 	public void setY(int y){
 		this.y=y;		
 	}
+	
+	public void setRemaining(int b){
+		this.remaining = b;
+	}
+	
+	public int getRemaining(){
+		return remaining;
+	}
+	
+	public void setRemainingClass(int b){
+		this.remainingClass = b;
+	}
+	
+	public int getRemainingClass(){
+		return remainingClass;
+	}
+	
+	public void setWinner(){
+		this.winner = true;
+	}
+	
+	public boolean getWinner(){
+		return winner;
+	}
 
 	/**
 	 * String representation. used for transfer over the network
@@ -104,8 +129,16 @@ public class NetPlayer {
 		String retval="";
 		retval+="PLAYER ";
 		retval+=name+" ";
-		retval+=x+" ";
-		retval+=y;
+		retval+=remainingClass+" ";
+		retval+=remaining;
 		return retval;
 	}	
+	
+	public String declareWinner(){
+		String retval="";
+		retval+="WINNER ";
+		retval+=name+" ";
+		retval+=winner;
+		return retval;
+	}
 }

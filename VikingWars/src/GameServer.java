@@ -133,19 +133,25 @@ public class GameServer implements Runnable, Constants{
 							game.update(tokens[1].trim(),player);
 							broadcast("CONNECTED "+tokens[1]);
 							playerCount++;
-							if (playerCount==numPlayers){
+						}
+						if(playerData.startsWith("WAITING")){
+							if (playerCount>=numPlayers){
 								gameStage=GAME_START;
 							}
 						}
 					  break;	
 				  case GAME_START:
-					  System.out.println("Game State: START");
-					  broadcast("START");
-					  gameStage=IN_PROGRESS;
+					  try {
+							Thread.sleep(10);
+							System.out.println("Game State: START");
+							broadcast("START");
+							gameStage=IN_PROGRESS;
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					  break;
 				  case IN_PROGRESS:
-					  //System.out.println("Game State: IN_PROGRESS");
-					  
 					  //Player data was received!
 					  if (playerData.startsWith("PLAYER")){
 						  //Tokenize:
@@ -156,14 +162,37 @@ public class GameServer implements Runnable, Constants{
 						  int y = Integer.parseInt(playerInfo[3].trim());
 						  //Get the player from the game state
 						  NetPlayer player=(NetPlayer)game.getPlayers().get(pname);					  
-						  player.setX(x);
-						  player.setY(y);
+						  player.setRemainingClass(x);
+						  player.setRemaining(y);
 						  //Update the game state
 						  game.update(pname, player);
 						  //Send to all the updated game state
 						  broadcast(game.toString());
 					  }
+					  if(playerData.startsWith("WINNER")){
+						  String[] playerInfo = playerData.split(" ");
+						  String winner = playerInfo[1];
+						  NetPlayer player=(NetPlayer)game.getPlayers().get(winner);					  
+						  player.setWinner();
+						  //Update the game state
+						  game.update(winner, player);
+						  //Send to all the updated game state
+						  broadcast("WINNER " + winner);
+					  }
 					  break;
+				  /*case GAME_END:
+					  if(playerData.startsWith("WINNER")){
+						  String[] playerInfo = playerData.split(" ");					  
+						  String pname =playerInfo[1];
+						  String winner = playerInfo[2];
+						  NetPlayer player=(NetPlayer)game.getPlayers().get(pname);					  
+						  player.setWinner(winner);
+						  //Update the game state
+						  game.update(pname, player);
+						  //Send to all the updated game state
+						  broadcast(game.declareWinner());
+					  }
+					  break;*/
 			}				  
 		}
 	}	

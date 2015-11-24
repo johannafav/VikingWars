@@ -12,6 +12,7 @@ public class Archer extends Unit{
 		this.life = 25;
 		this.damage = 75;
 		this.color = new Color(148, 0, 215);
+		this.type = 6;
 	}
 	
 }
